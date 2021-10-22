@@ -1,34 +1,69 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
-
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 
 /**
  * @param {vscode.ExtensionContext} context
  */
-function activate(context) {
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "coin-watch" is now active!');
+var request = require('request');
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with  registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('coin-watch.helloWorld', function () {
-		// The code you place here will be executed every time your command is executed
 
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from coin-watch!');
-	});
 
-	context.subscriptions.push(disposable);
+var options = {
+	'method': 'GET',
+	'url': 'https://api.huobi.pro/market/history/kline?symbol=filusdt&period=1min&size=1',
+	'headers': {
+	}
+};
+let myStatusBarItem;
+let presentCoin = "FIL/USDT";
+function activate({ subscriptions }) {
+
+	myStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+
+	myStatusBarItem.show()
+	const myCommandId = 'sample.showSelectionCount';
+	subscriptions.push(vscode.commands.registerCommand(myCommandId, () => {
+		showInputBox()
+	}));
+	myStatusBarItem.command = myCommandId;
+	setInterval(function () {
+		console.log(123123)
+
+		request(options, function (error, response) {
+			if (error) throw new Error(error);
+			console.log(response.body);
+			const obj = JSON.parse(response.body);
+			myStatusBarItem.text = `${presentCoin}:${obj.data[0].close}`
+			console.log(myStatusBarItem.text)
+		});
+
+		// myStatusBarItem.text = `${i}`
+	}, 3000)
+
 }
+async function showInputBox() {
+	let result = await vscode.window.showInputBox({
+		value: '',
+		valueSelection: [0, 3],
+		placeHolder: 'input coin name',
 
+	});
+	presentCoin = result.toUpperCase()
+	result = result.replace("/", "")
+	vscode.window.showInformationMessage(`Got: ${result}`);
+	options = {
+		'method': 'GET',
+		'url': `https://api.huobi.pro/market/history/kline?symbol=${result}&period=1min&size=1`,
+		'headers': {
+		}
+	};
+}
 // this method is called when your extension is deactivated
-function deactivate() {}
+function deactivate() { }
 
 module.exports = {
 	activate,
