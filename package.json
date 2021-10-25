@@ -3,8 +3,10 @@
   "displayName": "coin-watch",
   "description": "watch coin's price",
   "publisher": "jameszgb",
-  "repository": {"url": "https://github.com/james-zhang-bing/coin-watch"},
-  "version": "0.0.1",
+  "repository": {
+    "url": "https://github.com/james-zhang-bing/coin-watch"
+  },
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.61.0"
   },
